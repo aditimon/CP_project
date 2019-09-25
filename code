@@ -1,0 +1,329 @@
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<vector>
+#include<stdlib.h>
+
+using namespace std;
+class newspaper
+{
+    string usr_nm;
+    string password;
+    vector <string> Day[7];
+public:
+    newspaper()
+    {
+        usr_nm="";
+        password="";
+    }
+    void project_info()
+    {
+        cout<<"\n>MADE BY ADITI MOHAN (C067),\tVATSAL MOTIANI (C068) &\tMANU NAIR (C070)\n>SIMPLIFIED NEWSPAPER DELIVERY SYSTEM\n>MADE FOR PEOPLE WHO WOULD WANT DIFFERENT NEWSPAPERS ON DIFFERENT DAYS\n>ENJOY\n\n";
+    }
+    void log_in();
+    void sign_up();
+    void create_pack();
+    void payment();
+    void deets();
+    void set_pack();
+};
+void newspaper::sign_up()
+{
+    int i;
+    ofstream outfile;
+    outfile.open("user_data.txt",ios::app);
+    if(outfile.fail())
+    {
+        cerr<<"ERROR ACCESSING DATA"<<endl;
+        exit(1);
+    }
+    newspaper obj;
+    string nm,pw,confirm;
+    int len;
+    retry1:
+        cout<<"\nENTER USERNAME\n>";
+        cin>>nm;
+        len=int(nm.length());
+        if(len>20)
+        {
+            cout<<"MAXIMUM CHARACTERS ALLOWED ARE 20\n";
+            goto retry1;
+        }
+        else
+        {
+            for(int i=0;i<len;i++)
+                {
+                    if((int(nm[i])>=65 && int(nm[i])<=90) || (int(nm[i])>=97 && int(nm[i])<=122) || (int(nm[i])>=48 && int(nm[i])<=57))
+                        continue;
+                    else
+                    {
+                        cout<<"\nUSERNAME CAN ONLY CONTAIN LETTERS AND NUMBERS\n";
+                        goto retry1;
+                    }
+                }
+        }
+        retry2:
+            cout<<"\nENTER PASSWORD\n>";
+            cin>>pw;
+            len=int(pw.length());
+            if(len>20)
+            {
+                cout<<"\nMAXIMUM CHARACTERS ALLOWED ARE 20\n";
+                goto retry2;
+            }
+            else
+            {
+                for(int i=0;i<len;i++)
+                {
+                    if((int(pw[i])>=65 && int(password[i])<=90) || (int(pw[i])>=97 && int(pw[i])<=122) || (int(pw[i])>=48 && int(pw[i])<=57))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        cout<<"\nPASSWORD CAN ONLY CONTAIN LETTERS AND NUMBERS\n";
+                        goto retry2;
+                    }
+                }
+            }
+            cout<<"\nCONFIRM PASSWORD\n";
+            cout<<">";
+            cin>>confirm;
+            if(pw.compare(confirm)==0)
+            {
+                obj.usr_nm=nm;
+                obj.password=pw;
+                cout<<"\nSUBSCRIPTION:-\n\n1.SUBSRCRIBE TO A PRE-MADE PACK\n2.CREATE A PACK\nENTER CHOICE: ";
+                retry3:
+                    cin>>i;
+                    switch(i)
+                    {
+                    case 1:
+                        obj.set_pack();
+                        break;
+                case 2:
+                        obj.create_pack();
+                        break;
+                    default:
+                        cout<<"\nWRONG CHOICE";
+                        goto retry3;
+                        break;
+                    }
+                    outfile.write((char*)&obj, sizeof(obj));
+                    cout<<"ACCOUNT CREATED!\n";
+                    outfile.close();
+                }
+                else
+                {
+                    cout<<"\n\nPASSWORD IS NOT MATCHING THE ORIGINAL PASSWORD"<<endl<<endl;
+                    goto retry2;
+                }
+}
+void newspaper::log_in()
+{
+    string out[7]={"MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"};
+    string srch_nm,srch_pw;
+    ifstream infile;
+    infile.open("user_data.txt",ios::in);
+    if(infile.fail())
+    {
+        cerr<<"ERROR ACCESSING DATA"<<endl;
+        exit(1);
+    }
+    newspaper obj;
+    while(!infile.eof())
+    {
+        infile.read((char*)&obj, sizeof(obj));
+        cout<<obj.usr_nm;
+        cout<<obj.password;
+    }
+    int ch;
+    re1:
+        ch=0;
+        cout<<"ENTER USERNAME: ";
+        cin>>srch_nm;
+        while(!infile.eof())
+        {
+            while(infile.read((char*)&obj, sizeof(obj)))
+            {
+                cout<<obj.usr_nm;
+                if(srch_nm.compare(obj.usr_nm)==0)
+                     {
+                        cout<<"\nACCOUNT FOUND!";
+                        re2:
+                            cout<<"\nENTER PASSWORD: ";
+                            cin>>srch_pw;
+                            if(srch_pw.compare(obj.password)==0)
+                            {
+                                system("CLS");
+                                cout<<"\nWELCOME BACK"<<obj.usr_nm<<"!\nHERE IS YOUR CURRENT WEEKLY SCHEDULE:\n";
+                                vector<string>::iterator i;
+                                for(int j=0;j<7;j++)
+                                {
+                                    cout<<"\n"<<out[j]<<":\n";
+                                    for ( i = obj.Day[j].begin() ; i < obj.Day[j].end() ; i++ )
+                                        {
+                                            cout<<*i<<"\n";
+                                        }
+                                }
+                                ch++;
+                            }
+                            else
+                            {
+                                cout<<"INCORRECT PASSWORD";
+                                goto re2;
+                            }
+                    }
+                else if(ch!=1)
+                {
+                    cout<<"\nACCOUNT NOT FOUND";
+                    cout<<"\nENTER 1 IF YOU WANT TO RETRY\nPRESS ANY OTHER KEY TO EXIT\n\n>";
+                    cin>>ch;
+                    if(ch==1)
+                        goto re1;
+                    else
+                        exit(0);
+                }
+            }
+        }
+}
+void newspaper::create_pack()
+{
+    string out[7]={"MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"};
+    vector<string>::iterator i;
+    string temp;
+    ifstream infl;
+    infl.open("newspp_database.txt",ios::in);
+    // SEARCHING FOR NEWSPAPERS USING NAMES
+    /*for(int j=0;j<7;j++)
+    {
+        cout<<"\n"<<out[j]<<":\n";
+        for ( i = Day[j].begin() ; i < Day[j].end()+1 ; i++ )
+            {
+                cout<<"\nWhat would you like to read: ";
+                re1:
+                cin>>temp;
+                int ct=0;
+                if(temp.compare("exit")==0)
+                    break;
+                else
+                {
+                    while(!infl.eof())
+                    {
+                        getline(infl,nwspp);
+                        if(nwspp.compare(temp)==0)//convert to lower case
+                        {//chck if already subscribed for that day
+                            Day[j].push_back(temp);
+                            ct++;
+                            infl.clear();
+                            infl.seekg(0,ios::beg);
+                            break;
+                        }
+                    }
+                    if(ct==0)
+                    {
+                        cout<<"Newspaper not Available\nTry Another one: ";
+                        infl.clear();
+                        infl.seekg(0,ios::beg);
+                        goto re1;
+                    }
+                }
+            }
+    }*/
+    int n,chck,ct=0;
+    string code;
+    cout<<"NEWSPAPERS AVAILABLE: \n";
+    while(!infl.eof())
+    {
+        getline(infl,temp);
+        cout<<"\n"<<temp;
+    }
+    for(int j=0;j<7;j++)
+    {
+        cout<<"\nHOW MANY NEWSPAPERS WOULD YOU LIKE TO READ ON "<<out[j]<<"\n>";
+        cin>>n;
+        if(n!=0)
+            {cout<<"ENTER THE CODE OF THE NEWSPAPER YOU WOULD LIKE TO READ\n>";
+        for(int x=1; x<=n; x++)
+            {
+                cd:
+                    cin>>code;
+                    infl.clear();
+                    infl.seekg(0,ios::beg);
+                    while(!infl.eof())
+                    {
+                        getline(infl,temp);
+                        chck=0;
+                        for(int x=0; x<3; x++)
+                        {
+                            if(code[x]==temp[x])
+                            {
+                                chck++;
+                            }
+                        }
+                        if(chck==3)
+                        {
+                            cout<<temp<<"\n";
+                            Day[j].push_back(temp);
+                            ct=1;
+                        }
+                    }
+                    if(ct==0)
+                    {
+                        cout<<"INVALID CODE TRY AGAIN\n>";
+                        goto cd;
+                    }
+        }
+    }
+    for(int j=0; j<7; j++)
+        for(i=Day[j].begin();i<Day[j].end();i++)
+            cout<<*i<<"\n";
+}
+void newspaper::payment()
+{
+    system("CLS");
+    cout<<"PAYMENT DETAILS: ";
+}
+
+void newspaper::deets()
+{
+    system("CLS");
+    cout<<"USER DEATAILS: ";
+}
+
+void newspaper::set_pack()
+{
+    system("CLS");
+    cout<<"PRE-MADE PACKAGES: ";
+}
+
+int main()
+{
+    newspaper obj;
+    int ch;
+    cout<<"\t\t\t\tPROJECT NEWSPAPER \n"<<endl;
+    cout<<"\nENTER:\n1.IF YOU WOULD LIKE TO READ ABOUT THIS APPLICATION \n2.IF YOU WANT TO JUMP STRAIGHT INTO THE APPLICATION";
+    cout<<"\n>";
+    cin>>ch;
+    if(ch == 1)
+    {
+        obj.project_info();
+
+    }
+    cout<<"\n\nMENU:-\n\n1.SIGN UP\n2.LOG IN\nENTER CHOICE: ";
+    cin>>ch;
+    switch(ch)
+    {
+    case 1:
+        obj.sign_up();
+        obj.deets();
+        break;
+    case 2:
+        obj.log_in();
+        obj.deets();
+        break;
+    default:
+        cout<<"\nWRONG INPUT";
+        break;
+    }
+}
