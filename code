@@ -9,7 +9,7 @@ class newspaper
 {
     string usr_nm;
     string password;
-    vector <string> Day[7];
+    string subs;
 public:
     newspaper()
     {
@@ -22,7 +22,7 @@ public:
     }
     void log_in();
     void sign_up();
-    void create_pack();
+    string create_pack();
     void payment();
     void deets();
     void set_pack();
@@ -102,15 +102,16 @@ void newspaper::sign_up()
                         obj.set_pack();
                         break;
                 case 2:
-                        obj.create_pack();
+                        obj.subs=obj.create_pack();
+                        cout<<obj.subs;
                         break;
                     default:
-                        cout<<"\nWRONG CHOICE";
+                        cout<<"\nWRONG CHOICE TRY AGAIN";
                         goto retry3;
                         break;
                     }
                     outfile.write((char*)&obj, sizeof(obj));
-                    cout<<"ACCOUNT CREATED!\n";
+                    cout<<"\nACCOUNT CREATED!\n";
                     outfile.close();
                 }
                 else
@@ -127,7 +128,7 @@ void newspaper::log_in()
     infile.open("user_data.txt",ios::in);
     if(infile.fail())
     {
-        cerr<<"ERROR ACCESSING DATA"<<endl;
+        cerr<<"\nERROR ACCESSING DATA"<<endl;
         exit(1);
     }
     newspaper obj;
@@ -136,11 +137,12 @@ void newspaper::log_in()
         infile.read((char*)&obj, sizeof(obj));
         cout<<obj.usr_nm;
         cout<<obj.password;
+        cout<<obj.subs;
     }
-    int ch;
+    /*int ch;
     re1:
         ch=0;
-        cout<<"ENTER USERNAME: ";
+        cout<<"\nENTER USERNAME: ";
         cin>>srch_nm;
         while(!infile.eof())
         {
@@ -170,7 +172,7 @@ void newspaper::log_in()
                             }
                             else
                             {
-                                cout<<"INCORRECT PASSWORD";
+                                cout<<"\nINCORRECT PASSWORD";
                                 goto re2;
                             }
                     }
@@ -185,15 +187,21 @@ void newspaper::log_in()
                         exit(0);
                 }
             }
-        }
+        }*/
 }
-void newspaper::create_pack()
+string newspaper::create_pack()
 {
     string out[7]={"MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"};
+    vector <string> Day[7];
     vector<string>::iterator i;
     string temp;
     ifstream infl;
     infl.open("newspp_database.txt",ios::in);
+    if(infl.fail())
+    {
+        cerr<<"\nERROR ACCESSING DATA";
+        exit(1);
+    }
     // SEARCHING FOR NEWSPAPERS USING NAMES
     /*for(int j=0;j<7;j++)
     {
@@ -231,8 +239,8 @@ void newspaper::create_pack()
             }
     }*/
     int n,chck,ct=0;
-    string code;
-    cout<<"NEWSPAPERS AVAILABLE: \n";
+    string code,s;
+    cout<<"\n\n\nNEWSPAPERS AVAILABLE: \n";
     while(!infl.eof())
     {
         getline(infl,temp);
@@ -243,10 +251,11 @@ void newspaper::create_pack()
         cout<<"\nHOW MANY NEWSPAPERS WOULD YOU LIKE TO READ ON "<<out[j]<<"\n>";
         cin>>n;
         if(n!=0)
-            {cout<<"ENTER THE CODE OF THE NEWSPAPER YOU WOULD LIKE TO READ\n>";
+            cout<<"ENTER THE CODE OF THE NEWSPAPER YOU WOULD LIKE TO READ";
         for(int x=1; x<=n; x++)
             {
                 cd:
+                    cout<<"\n>";
                     cin>>code;
                     infl.clear();
                     infl.seekg(0,ios::beg);
@@ -273,12 +282,19 @@ void newspaper::create_pack()
                         cout<<"INVALID CODE TRY AGAIN\n>";
                         goto cd;
                     }
-        }
+            }
     }
-    for(int j=0; j<7; j++)
+    for(int j=0;j<7;j++)
+    {
         for(i=Day[j].begin();i<Day[j].end();i++)
-            cout<<*i<<"\n";
+        {
+            s+=*i+",";
+        }
+        s+=" ";
+    }
+    return s;
 }
+
 void newspaper::payment()
 {
     system("CLS");
@@ -316,7 +332,7 @@ int main()
     {
     case 1:
         obj.sign_up();
-        obj.deets();
+        //obj.deets();
         break;
     case 2:
         obj.log_in();
